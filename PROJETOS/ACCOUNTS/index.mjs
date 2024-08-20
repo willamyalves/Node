@@ -27,16 +27,15 @@ const operation = () => {
       switch (operationSelected) {
         case "Criar conta":
           createAccount();
-          operation();
           break;
         case "Consultar saldo":
           verifyBalance();
           break;
         case "Depositar":
-          console.log("Depositar");
+          deposit();
           break;
         case "Sacar":
-          console.log("Sacar");
+          withdraw();
           break;
         case "Sair":
           console.log("Sair");
@@ -59,8 +58,8 @@ const createAccount = () => {
     ])
     .then((answer) => {
       const accountName = answer.accountName;
-      if (!fs.existsSync("./accounts")) {
-        fs.mkdirSync("./accounts");
+      if (!fs.existsSync("./accounts-bank")) {
+        fs.mkdirSync("./accounts-bank");
       }
       if (!accountName) {
         console.log(
@@ -68,7 +67,9 @@ const createAccount = () => {
         );
         return createAccount();
       }
-      fs.writeFileSync(`./accounts/${accountName}.json`, '{"balance": 0}');
+      fs.writeFileSync(`./accounts-bank/${accountName}.json`, '{"balance": 0}');
+      console.log(chalk.blue.bold("Conta criada com sucesso!"));
+      operation();
     })
     .catch((error) => console.log(error));
 };
@@ -84,27 +85,170 @@ const verifyBalance = () => {
     .then((answer) => {
       const accountName = answer.accountName;
 
-      if (!fs.existsSync(`./accounts/${accountName}.json`)) {
-        console.log(chalk.bgRed("Esta conta não existe, escolha outro nome"));
-        return verifyBalance();
-      }
       if (!accountName) {
         console.log(
           chalk.bgRed.black("Por favor, escreva o nome da sua conta")
         );
         return verifyBalance();
       }
-      fs.readFileSync(`./accounts/${accountName}.json`, "utf8", (err, data) => {
-        if (err) {
-          console.log(err);
-        }
+      if (!fs.existsSync(`./accounts-bank/${accountName}.json`)) {
+        console.log(
+          chalk.bgRed("Esta conta não existe, escolha outro nome da conta")
+        );
+        return verifyBalance();
+      }
+      const data = fs.readFileSync(
+        `./accounts-bank/${accountName}.json`,
+        "utf8"
+      );
+
+      try {
         const balance = JSON.parse(data).balance;
         console.log(
           chalk.bgBlue(`Olá, o saldo da sua conta é de R$${balance}`)
         );
-        return balance;
-      });
-    });
+        return operation();
+      } catch (error) {
+        console.log(error);
+      }
+    })
+    .catch((error) => console.log(error));
+};
+
+const deposit = () => {
+  inquirer
+    .prompt([
+      {
+        name: "accountName",
+        message: "Qual o nome da sua conta?",
+      },
+    ])
+    .then((answer) => {
+      const accountName = answer.accountName;
+
+      if (!accountName) {
+        console.log(
+          chalk.bgRed.black("Por favor, escreva o nome da sua conta")
+        );
+        return deposit();
+      }
+      if (!fs.existsSync(`./accounts-bank/${accountName}.json`)) {
+        console.log(
+          chalk.bgRed("Esta conta não existe, escolha outro nome da conta")
+        );
+        return deposit();
+      }
+      inquirer
+        .prompt([
+          {
+            name: "valueToDeposit",
+            message: "Quanto você deseja depositar?",
+          },
+        ])
+        .then((answer) => {
+          const valueToDeposit = Number(answer.valueToDeposit);
+
+          if (isNaN(valueToDeposit) || valueToDeposit <= 0) {
+            console.log(chalk.bgRed.black("Valor inválido, tente novamente"));
+            return deposit();
+          }
+
+          const data = fs.readFileSync(
+            `./accounts-bank/${accountName}.json`,
+            "utf8"
+          );
+          try {
+            let balance = JSON.parse(data).balance;
+
+            balance = balance + valueToDeposit;
+
+            const stringBalance = JSON.stringify({ balance });
+
+            fs.writeFileSync(
+              `./accounts-bank/${accountName}.json`,
+              stringBalance
+            );
+            console.log(chalk.bgGreen.white("Depósito realizado com sucesso!"));
+            operation();
+          } catch (error) {
+            console.log(error);
+          }
+        })
+        .catch((error) => console.log(error));
+    })
+    .catch((error) => console.log(error));
+};
+
+const withdraw = () => {
+  inquirer
+    .prompt([
+      {
+        name: "accountName",
+        message: "Qual o nome da sua conta?",
+      },
+    ])
+    .then((answer) => {
+      const accountName = answer.accountName;
+
+      if (!accountName) {
+        console.log(
+          chalk.bgRed.black("Por favor, escreva o nome da sua conta")
+        );
+        return withdraw();
+      }
+      if (!fs.existsSync(`./accounts-bank/${accountName}.json`)) {
+        console.log(
+          chalk.bgRed("Esta conta não existe, escolha outro nome da conta")
+        );
+        return withdraw();
+      }
+
+      inquirer
+        .prompt([
+          {
+            name: "valueToWithdraw",
+            message: "Quanto você deseja sacar?",
+          },
+        ])
+        .then((answer) => {
+          const valueToWithdraw = Number(answer.valueToWithdraw);
+
+          const data = fs.readFileSync(
+            `./accounts-bank/${accountName}.json`,
+            "utf8"
+          );
+
+          try {
+            let balance = JSON.parse(data).balance;
+
+            if (isNaN(valueToWithdraw) || valueToWithdraw > balance) {
+              console.log(chalk.bgRed("Valor indisponível"));
+              return operation();
+            }
+
+            balance = balance - valueToWithdraw;
+
+            const stringBalance = JSON.stringify({ balance });
+
+            fs.writeFileSync(
+              `./accounts-bank/${accountName}.json`,
+              stringBalance
+            );
+
+            console.log(
+              chalk.green(
+                `Foi realizado um saque de R$${valueToWithdraw} da sua conta`
+              )
+            );
+
+            operation();
+          } catch (error) {
+            console.log(error);
+          }
+        })
+        .catch((error) => console.log(error));
+    })
+    .catch((error) => console.log(error));
 };
 
 operation();
