@@ -1,6 +1,6 @@
 // Módulos externos
 const inquire = require("inquire");
-const chalk = require("chalk");
+const { default: chalk } = require("chalk");
 
 // Módulos internos
 const fs = require("fs");
