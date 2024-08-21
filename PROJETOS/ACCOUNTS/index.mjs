@@ -38,7 +38,7 @@ const operation = () => {
           withdraw();
           break;
         case "Sair":
-          console.log("Sair");
+          exit();
           break;
       }
     })
@@ -249,6 +249,11 @@ const withdraw = () => {
         .catch((error) => console.log(error));
     })
     .catch((error) => console.log(error));
+};
+
+const exit = () => {
+  console.log(chalk.bgBlue("Obrigado por usar o Accounts!"));
+  process.exit();
 };
 
 operation();
