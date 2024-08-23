@@ -1,0 +1,16 @@
+<h1>Home do site</h1>
+
+{{#if auth}}
+
+  <p>Usuário autenticado, clique
+    <a href="/dashboard">aqui</a>
+    para ir até o dashboard</p>
+
+{{/if}}
+
+<p>O nome do usuário é
+  {{user.name}}
+  {{user.surName}}
+  e ele tem
+  {{user.age}}
+  anos de idade</p>

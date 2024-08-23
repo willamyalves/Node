@@ -1,0 +1,25 @@
+<h1>Home do site</h1>
+
+{{#if approved}}
+  <p>Cadastro aprovado, você tem acesso total ao sistema!</p>
+
+{{else}}
+
+  <p>Cadastro negado, envie novamente os seus documentos.</p>
+
+{{/if}}
+
+{{#if auth}}
+
+  <p>Usuário autenticado, clique
+    <a href="/dashboard">aqui</a>
+    para ir até o dashboard</p>
+
+{{/if}}
+
+<p>O nome do usuário é
+  {{user.name}}
+  {{user.surName}}
+  e ele tem
+  {{user.age}}
+  anos de idade</p>
