@@ -1,1 +1,19 @@
-<h1>Olá Sequelize</h1>
+<h1>Usuários cadastrados</h1>
+
+{{#each users}}
+  <div class="container">
+    <div class="item">
+      <p>Nome: <a href="/user/{{this.id}}">{{this.name}}</a></p>
+      <p>Ocupação: {{this.occupation}}</p>
+      <div class="forms">
+        <form action="/user/delete/{{this.id}}" method="POST">
+          <input type="submit" value="Remover" />
+        </form>
+        <form action="/user/edit/{{this.id}}" method="GET">
+          <input type="submit" value="Editar" />
+        </form>
+      </div>
+
+    </div>
+  </div>
+{{/each}}
