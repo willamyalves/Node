@@ -1,0 +1,9 @@
+<h1>Informações sobre o livro:</h1>
+
+<p>ID: {{dataBook.id}}</p>
+<p>Título: {{dataBook.title}}</p>
+<p>Número de páginas: {{dataBook.pageqty}}</p>
+<a href="/book/edit/{{dataBook.id}}">Editar</a>
+<form action="/book/delete/{{dataBook.id}}" method="POST">
+  <input type="submit" value="Remover" />
+</form>
