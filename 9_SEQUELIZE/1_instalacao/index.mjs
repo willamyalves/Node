@@ -3,6 +3,7 @@ import exphbs from "express-handlebars";
 import conn from "./db/conn.mjs";
 
 import User from "./models/User.mjs";
+import Address from "./models/Address.mjs";
 
 const app = express();
 
@@ -21,10 +22,58 @@ app.set("view engine", "handlebars");
 
 app.use(express.static("public"));
 
+app.post("/user/edit", (req, res) => {
+  const id = req.body.id;
+  const name = req.body.name;
+  const occupation = req.body.occupation;
+  let newsletter = req.body.newsletter;
+
+  if (newsletter === "on") {
+    newsletter = 1;
+  } else {
+    newsletter = 0;
+  }
+
+  const userData = {
+    id,
+    name,
+    occupation,
+    newsletter,
+  };
+
+  User.update(userData, { where: { id: id } });
+
+  res.redirect("/");
+});
+
+app.post("/address/create", async (req, res) => {
+  const userID = req.body.id;
+  const street = req.body.street;
+  const number = req.body.number;
+  const city = req.body.city;
+
+  const address = {
+    userID,
+    street,
+    number,
+    city,
+  };
+
+  await Address.create(address);
+
+  res.redirect("/users/create");
+});
+
 app.get("/user/edit/:id", async (req, res) => {
   const id = req.params.id;
 
   const user = await User.findOne({ raw: true, where: { id: id } });
+
+  if (user.newsletter === "1") {
+    user.newsletter = 1;
+  } else {
+    user.newsletter = 0;
+  }
 
   res.status(200).render("useredit", { user });
 });
