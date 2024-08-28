@@ -11,3 +11,7 @@ async function run() {
     console.log(error);
   }
 }
+
+run();
+
+export default client;
