@@ -18,7 +18,8 @@ app.use(express.json());
 // Connect CSS
 app.use(express.static("public"));
 
-app.use("/products", ProductsRoutes);
+// Call the Routes
+app.use("/", ProductsRoutes);
 
 // Execute app
 app.listen(port, () => {
