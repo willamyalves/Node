@@ -2,6 +2,8 @@ import express from "express";
 import exphbs from "express-handlebars";
 import conn from "./db/conn.mjs";
 
+import ProductsRoutes from "./routes/ProductsRoutes.mjs";
+
 const app = express();
 const port = 3000;
 
@@ -15,6 +17,8 @@ app.use(express.json());
 
 // Connect CSS
 app.use(express.static("public"));
+
+app.use("/products", ProductsRoutes);
 
 // Execute app
 app.listen(port, () => {
