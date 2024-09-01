@@ -1,4 +1,8 @@
 import User from "../models/User.mjs";
+import bcrypt from "bcrypt";
+import createUserToken from "../helpers/create-user-token.mjs";
+import getToken from "../helpers/get-token.mjs";
+import jwt from "jsonwebtoken";
 
 export default class UserController {
   static async register(req, res) {
@@ -30,6 +34,97 @@ export default class UserController {
       return;
     }
 
-    await res.json({ message: "Apenas um teste" });
+    const existEmail = await User.findOne({ email });
+
+    if (existEmail) {
+      res.status(422).json({ message: "E-mail já cadastrado" });
+      return;
+    }
+
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const user = new User({
+      name,
+      email,
+      phone,
+      password: passwordHash,
+    });
+
+    try {
+      const newUser = await user.save();
+      await createUserToken(newUser, req, res);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Erro" });
+    }
+  }
+
+  static async login(req, res) {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!email) {
+      res.status(422).json({ message: "O e-mail é obrigatório" });
+      return;
+    }
+    if (!password) {
+      res.status(422).json({ message: "A senha é obrigatória" });
+      return;
+    }
+
+    if (!user) {
+      res.status(422).json({ message: "Este e-mail não está cadastrado" });
+      return;
+    }
+
+    const checkPassword = await bcrypt.compare(password, user.password);
+
+    if (!checkPassword) {
+      res.status(422).json({ message: "A senha está incorreta" });
+      return;
+    }
+
+    try {
+      await createUserToken(user, req, res);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Erro" });
+    }
+  }
+
+  static async checkUser(req, res) {
+    let currentUser;
+
+    if (req.headers.authorization) {
+      const token = await getToken(req);
+
+      const decoded = jwt.verify(token, "nossosecret");
+
+      currentUser = await User.findById(decoded.id);
+      currentUser.password = null;
+    } else {
+      currentUser = null;
+    }
+
+    res.status(200).send(currentUser);
+  }
+
+  static async getUserById(req, res) {
+    const id = req.params.id;
+
+    const user = await User.findById(id).select("-password");
+
+    if (!user) {
+      res.status(400).json({ message: "Id não encontrado" });
+      return;
+    }
+
+    res.status(200).json({ user });
+  }
+
+  static async editUser(req, res) {
+    res.status(200).json({ message: "Teste" });
   }
 }
