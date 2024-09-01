@@ -23,4 +23,41 @@ export default class ProductController {
 
     res.redirect("/");
   }
+
+  static async productDetails(req, res) {
+    const id = req.params.id;
+
+    const product = await Product.getProduct(id);
+
+    res.render("products/product", { product });
+  }
+
+  static async removeProduct(req, res) {
+    const id = req.params.id;
+
+    await Product.removeProductById(id);
+
+    res.redirect("/");
+  }
+
+  static async editProduct(req, res) {
+    const id = req.params.id;
+    const product = await Product.getProduct(id);
+
+    res.render("products/editProduct", { product });
+  }
+
+  static async editProductPost(req, res) {
+    const id = req.params.id;
+    const name = req.body.name;
+    const image = req.body.image;
+    const price = req.body.price;
+    const description = req.body.description;
+
+    const product = new Product(name, image, price, description);
+
+    await product.updateProduct(id);
+
+    res.redirect("/");
+  }
 }

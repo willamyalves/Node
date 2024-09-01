@@ -1,0 +1,10 @@
+<h1>Produto: {{product.name}}</h1>
+<img src="{{product.image}}" alt="Foto do produto" />
+<p>{{product.price}}</p>
+<p>{{product.description}}</p>
+<form action="/remove/{{product._id}}" method="POST">
+  <input type="submit" value="Excluir" class="btn" />
+</form>
+<form action="/product/edit/{{product._id}}" method="GET">
+  <input type="submit" value="Editar" class="btn" />
+</form>
