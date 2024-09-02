@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import createUserToken from "../helpers/create-user-token.mjs";
 import getToken from "../helpers/get-token.mjs";
 import jwt from "jsonwebtoken";
+import getUserByToken from "../helpers/get-user-by-token.mjs";
 
 export default class UserController {
   static async register(req, res) {
@@ -125,6 +126,57 @@ export default class UserController {
   }
 
   static async editUser(req, res) {
-    res.status(200).json({ message: "Teste" });
+    const token = await getToken(req);
+    const user = await getUserByToken(token);
+
+    const { name, email, password, phone, confirmpassword } = req.body;
+
+    // Validações
+    if (!name) {
+      res.status(422).json({ message: "O nome é obrigatório" });
+      return;
+    }
+    if (!email) {
+      res.status(422).json({ message: "O e-mail é obrigatório" });
+      return;
+    }
+    if (email === user.email) {
+      res.status(422).json({ message: "O e-mail deve ser diferente do atual" });
+      return;
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists && email !== user.email) {
+      res.status(422).json({ message: "Este e-mail já está em uso" });
+      return;
+    }
+
+    if (!phone) {
+      res.status(422).json({ message: "O número de telefone é obrigatório" });
+      return;
+    }
+    if (password && password !== confirmpassword) {
+      res.status(422).json({ message: "As senhas não são iguais" });
+      return;
+    }
+
+    // Atualizar senha se fornecida
+    if (password) {
+      const salt = await bcrypt.genSalt(12);
+      const passwordHash = await bcrypt.hash(password, salt);
+      user.password = passwordHash;
+    }
+
+    // Atualizar informações do usuário
+    user.name = name;
+    user.email = email;
+    user.phone = phone;
+
+    try {
+      await User.findByIdAndUpdate(user._id, { $set: user }, { new: true });
+      res.status(200).json({ message: "Usuário atualizado com sucesso" });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   }
 }
