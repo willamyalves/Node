@@ -1,21 +1,30 @@
 import mongoose from "../db/conn.mjs";
 import { Schema } from "mongoose";
 
-const Pet = mongoose.model(
-  "Pet",
-  new Schema(
-    {
-      name: { type: String, required: true },
-      age: { type: Number, required: true },
-      weight: { type: Number, required: true },
-      color: { type: String, required: true },
-      images: { type: Array, required: true },
-      Available: { type: Boolean },
-      user: { Object },
-      adopter: { Object },
+const PetSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    age: { type: Number, required: true },
+    weight: { type: Number, required: true },
+    color: { type: String, required: true },
+    images: { type: [], required: true },
+    available: { type: Boolean },
+    user: {
+      _id: { type: Schema.Types.ObjectId, ref: "User" },
+      name: { type: String },
+      image: { type: String },
+      phone: { type: String },
     },
-    { timestamps: true }
-  )
+    adopter: {
+      _id: { type: Schema.Types.ObjectId, ref: "User" },
+      name: { type: String },
+      image: { type: String },
+      phone: { type: String },
+    },
+  },
+  { timestamps: true }
 );
+
+const Pet = mongoose.model("Pet", PetSchema);
 
 export default Pet;

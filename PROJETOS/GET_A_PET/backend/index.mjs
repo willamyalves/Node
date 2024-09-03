@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import UserRoutes from "./routes/UserRoutes.mjs";
+import PetsRoutes from "./routes/PetsRoutes.mjs";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.static("public"));
 
 // Routes
 app.use("/users", UserRoutes);
+app.use("/pets", PetsRoutes);
 
 app.listen(5000, () => {
   console.log("Funcionando");

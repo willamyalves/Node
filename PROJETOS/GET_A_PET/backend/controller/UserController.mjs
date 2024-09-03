@@ -131,6 +131,10 @@ export default class UserController {
 
     const { name, email, password, phone, confirmpassword } = req.body;
 
+    if (req.file) {
+      user.image = req.file.filename;
+    }
+
     // Validações
     if (!name) {
       res.status(422).json({ message: "O nome é obrigatório" });
